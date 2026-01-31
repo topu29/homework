@@ -161,3 +161,15 @@ if (binaryElement) {
     // Start typing effect when page loads
     setTimeout(typeWriter, 1000);
 }
+
+
+function sendMail(){
+    let parms = {
+        name : document.getElementById("name").value,
+        email: document.getElementById('email').value,
+        subject : document.getElementById('subject').value,
+        message : document.getElementById('message').value,
+    }
+
+    emailjs.send("service_otzhazs","template_yuwglyg",parms).then(alert("Email Sent!!"))
+}
