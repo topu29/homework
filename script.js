@@ -18,11 +18,13 @@ window.addEventListener('scroll', () => {
 });
 
 // Mobile Navigation
-hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('nav-active');
-    hamburger.classList.toggle('active');
-    document.body.classList.toggle('no-scroll'); // Prevent body scrolling when menu is open
-});
+if (hamburger) {
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('nav-active');
+        hamburger.classList.toggle('active');
+        document.body.classList.toggle('no-scroll'); // Prevent body scrolling when menu is open
+    });
+}
 
 // Close mobile menu when clicking on a link
 navLinksItems.forEach(item => {
@@ -36,22 +38,24 @@ navLinksItems.forEach(item => {
 });
 
 // Theme toggle functionality
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
 
-    // Toggle icons
-    if (document.body.classList.contains('light-theme')) {
-        moonIcon.style.display = 'none';
-        sunIcon.style.display = 'block';
-    } else {
-        moonIcon.style.display = 'block';
-        sunIcon.style.display = 'none';
-    }
+        // Toggle icons
+        if (document.body.classList.contains('light-theme')) {
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'block';
+        } else {
+            moonIcon.style.display = 'block';
+            sunIcon.style.display = 'none';
+        }
 
-    // Save theme preference to localStorage
-    const theme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-    localStorage.setItem('theme', theme);
-});
+        // Save theme preference to localStorage
+        const theme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+        localStorage.setItem('theme', theme);
+    });
+}
 
 // Load saved theme preference
 document.addEventListener('DOMContentLoaded', () => {
@@ -99,29 +103,41 @@ if (contactForm) {
             return;
         }
 
-        // Here you would normally send the form data to a server
-        // For this demo, we'll just show a success message
-
-        const formData = {
-            name,
-            email,
-            subject,
-            message
+        // Send email using EmailJS
+        const parms = {
+            name: name,
+            email: email,
+            subject: subject,
+            message: message,
         };
 
-        console.log('Form submitted:', formData);
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerText;
+        submitButton.innerText = 'Sending...';
+        submitButton.disabled = true;
 
-        // Show success message
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            <p>Thank you for your message, ${name}! I'll get back to you soon.</p>
-        `;
+        emailjs.send("service_otzhazs", "template_yuwglyg", parms)
+            .then(() => {
+                console.log('Email Sent!!');
 
-        // Replace form with success message
-        contactForm.innerHTML = '';
-        contactForm.appendChild(successMessage);
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'success-message';
+                successMessage.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <p>Thank you for your message, ${name}! I'll get back to you soon.</p>
+                `;
+
+                // Replace form with success message
+                contactForm.innerHTML = '';
+                contactForm.appendChild(successMessage);
+            })
+            .catch((error) => {
+                console.error('Failed to send email:', error);
+                alert('Failed to send message. Please try again later.');
+                submitButton.innerText = originalButtonText;
+                submitButton.disabled = false;
+            });
     });
 }
 
@@ -163,13 +179,4 @@ if (binaryElement) {
 }
 
 
-function sendMail(){
-    let parms = {
-        name : document.getElementById("name").value,
-        email: document.getElementById('email').value,
-        subject : document.getElementById('subject').value,
-        message : document.getElementById('message').value,
-    }
 
-    emailjs.send("service_otzhazs","template_yuwglyg",parms).then(alert("Email Sent!!"))
-}
